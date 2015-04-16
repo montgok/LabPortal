@@ -1,0 +1,555 @@
+<?php
+require_once('/var/www/databaseFunctions.php');
+
+session_start();    
+
+function getResourceListFrom_CalendarResource()
+{
+	$resourceList = array();
+	$query = "SELECT name FROM CalendarResource";
+	$link = connectToDB();
+	$rows = executeQuery($link, $query);
+	foreach($rows as $row)
+	{
+		$thisRow = $row['name'];
+		// raw row contains XML data, example: 
+		/* <?xml version='1.0' encoding='UTF-8'?><root available-locales="en_US" default-locale="en_US"><Name language-id="en_US">Peter Zeppieri</Name></root> */
+		// strip out blank lines, LabOnDemand, and all XML from valid resource names
+		if( (strstr($thisRow, "<Name")) && (!strstr($thisRow, "LabOnDemand")) ) {
+			$thisRowParts = explode(">", $thisRow);
+                        $thisPart = $thisRowParts['3'];
+			$thisNameParts = explode("<", $thisPart);
+			$thisName = $thisNameParts['0'];
+			array_push($resourceList, $thisName);
+		}
+	}
+	return $resourceList;
+}
+function splitResourcesIntoDeviceAndPersonSessionVars($resourceList)
+{
+	$userList = array();
+	$deviceList = array();
+
+	// get list of users from the database
+	$query = "SELECT firstName, middleName, lastName from User_ WHERE userId != '10158'";
+	$link = connectToDB();
+      	$rows = executeQuery($link, $query);
+        foreach($rows as $row)
+        {
+		$thisFirstName = trim($row['firstName']);
+		$thisMiddleName = trim($row['middleName']);
+		$thisLastName = trim($row['lastName']);
+		$thisName = $thisFirstName;
+		if(strlen($thisMiddleName) > 0) { 
+			$thisName = $thisName." ".$thisMiddleName;
+		}
+		$thisName = $thisName." ".$thisLastName;
+		array_push($userList, trim($thisName));
+	}
+
+	// itterate through all resources and compare to userList, store user and devices separately
+	for($x=0; $x<count($resourceList); $x++) {
+		$thisResource = $resourceList[$x];
+		for($y=0; $y<count($userList); $y++) {
+			$thisUser = $userList[$y];
+
+			if($thisResource ==  $thisUser) {
+				break;
+			}
+
+			if($y+1 == count($userList)) {
+				array_push($deviceList, $thisResource);
+			}
+		}
+	}
+
+	// save userList and deviceList in session vars
+	$_SESSION['userList'] = $userList;
+	$_SESSION['deviceList'] = $deviceList;
+}
+
+foreach($_COOKIE as $key => $value) 
+{ 
+	// Cookie var LFR_SESSION_STATE_##### holds the liferay userId in it's key name, find and extract userId
+	if(strstr($key, "LFR_SESSION_STATE")) 
+	{
+		$keyparts = explode("_", $key); 
+		$liferayUserId = $keyparts[3];
+	
+		// get userName from DB using userId
+		if( isset($liferayUserId) && $liferayUserId > 0 )
+		{
+			$query = "SELECT firstName, lastName from User_ where userId='$liferayUserId'";
+			$link = connectToDB();
+			$rows = executeQuery($link, $query);
+			foreach($rows as $row)
+                	{
+				$thisFirstName = $row['firstName'];
+				$thisLastName = $row['lastName'];
+				$thisUserName = $thisFirstName.' '.$thisLastName;
+				$_SESSION['thisUserName'] = $thisUserName;
+	                }
+		}
+	
+		// break out of foreach
+		break; 
+	}
+	else {
+		//$_SESSION['thisUserName'] = 'Keith Montgomery';
+	}
+}
+
+// get list of device resources and people resources, split results and store in session vars
+$resourceList = getResourceListFrom_CalendarResource();
+splitResourcesIntoDeviceAndPersonSessionVars($resourceList);
+
+?>
+
+<!DOCTYPE html>
+<html lang="en">
+<head>        
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <link rel="icon" type="image/ico" href="favicon.ico"/>
+    <link href="css/stylesheets.css" rel="stylesheet" type="text/css" />        
+    <script type='text/javascript' src='js/plugins/jquery/jquery.min.js'></script>
+    <script type='text/javascript' src='js/plugins/jquery/jquery-ui.min.js'></script>   
+    <script type='text/javascript' src='js/plugins/jquery/jquery-migrate.min.js'></script>
+    <script type='text/javascript' src='js/plugins/jquery/globalize.js'></script>    
+    <script type='text/javascript' src='js/plugins/bootstrap/bootstrap.min.js'></script>
+    <script type='text/javascript' src='js/plugins/mcustomscrollbar/jquery.mCustomScrollbar.min.js'></script>    
+    <script type='text/javascript' src='js/plugins.js'></script>    
+    <script type='text/javascript' src='js/actions.js'></script>
+    <script type='text/javascript' src='js/plugins/uniform/jquery.uniform.min.js'></script>
+
+    <link rel='stylesheet' href='/portal/node-v0.10.29/bower_components/fullcalendar/dist/fullcalendar.css' />
+    <script src='/portal/node-v0.10.29/bower_components/moment/moment.js'></script>
+    <script src='/portal/node-v0.10.29/bower_components/fullcalendar/dist/fullcalendar.js'></script>
+    <script type='text/javascript' src='js/event-calendar.js'></script>
+    <script type="text/javascript" src="js/jquery-timepicker-master/jquery.timepicker.js"></script>
+    <link rel="stylesheet" type="text/css" href="js/jquery-timepicker-master/jquery.timepicker.css" />
+
+</head>
+<body class="bg-img-num8">
+    <div class="container bg-white">
+        <div class="row">
+		<table><tr><td width="120"><input type="button" value="Create New Event" style="background-color: #3a87ad" onclick="createCalendarEvent()"/></td></tr></table><br>
+	</div>
+        <div class="row">
+		<div id="event-calendar"></div>
+		<br> <br> <br> <br> <br> <br> <br> <br> <br> <br>
+		<br> <br> <br> <br> <br> <br> <br> <br> <br> <br>
+	</div>
+    </div>
+
+
+<!--	Begin createEventModal	-->
+    <div class="modal modal-primary" id="createEventModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                    <h4 class="modal-title" id="eventModal_title">Create Event</h4>
+                </div>
+                <div class="modal-body clearfix">
+			<table width="100%">
+			<tbody>
+                                <tr>
+                                    <td width="100%" colspan="4">
+					<label>Title: </label> <input type="text" id="event-title" name="event-title"value="" /><br> </td>
+                                </tr>
+                                <tr>
+                                    <td width="35%">
+					<label>Start Date: </label> <input type="text" id="start-datepicker" name="start-datepicker" value="" />
+				    </td>
+                                    <td width="15%"><br></td>
+                                    <td width="35%">
+					<label id="start-time-label">Start Time: </label> <input type="text" id="start-timepicker" name="start-timepicker" value="" />
+				    </td>
+                                    <td width="15%"><br></td>
+				</tr>
+				<tr>
+                                    <td width="35%">
+					<label>End Date: </label> <input type="text" id="end-datepicker" name="end-datepicker" value="" /><br>
+				    </td>
+                                    <td width="15%"><br></td>
+                                    <td width="35%">
+					<label id="end-time-label">End Time: </label> <input type="text" id="end-timepicker" name="end-timepicker" value="" /><br>
+				    </td>
+                                    <td width="15%"><br></td>
+				</tr>
+			</tbody>
+			</table>
+
+			<table width="100%">
+			<tbody>
+				<tr>
+                                    <td width="80">
+					<label>All Day: </label> 
+				    </td>
+				    <td>
+					<input type="checkbox" id="all-day-checkbox"/>
+				    </td>
+				</tr>
+				<!--tr>
+                                    <td width="80">
+					<label>Repeat: </label> 
+				    </td>
+                                    <td>
+					<input type="checkbox" id="repeat-checkbox"/>
+				    </td>
+				</tr-->
+			</tbody>
+			</table>
+
+
+			<!--div id="repeat-div">
+			<table width="100%">
+                        <tbody>
+                                <tr>
+                                    <td width="100">
+                                        <label>repeat stuff here: </label>
+                                    </td>
+                                </tr>
+                        </tbody>
+			</table>
+			</div-->
+
+			<table width="100%">
+                        <tbody>
+                                <tr>
+                                    <td width="100">
+                                        <label><br>Description: </label>
+                                        <br><textarea id="event-description"></textarea>
+                                    </td>
+                                </tr>
+                        </tbody>
+                        </table>
+
+			<table width="100%">
+                        <tbody>
+                                <tr>
+                                    <td width="100">
+                                        <label><br>Resources (devices): </label>
+				    </td>
+				</tr>
+			</tbody>
+			</table>
+
+			<table width="100%">
+                        <tbody>
+				<tr>
+					<td width="5%"><br></td>
+					<td width="90%">
+  					    <table width="100%">
+	                        		<tbody>
+	                                	<tr>
+						<?php 
+	                                        $deviceList = $_SESSION['deviceList'];
+	                                        for($x=0; $x<count($deviceList); $x++) {
+	                                                $thisDevice = $deviceList[$x];                                                
+							echo "<td width='10'><input type='checkbox' id='eventResourceDeviceCheckbox' name='$thisDevice'></input><br></td>";
+							echo "<td width='50%'><span id='eventResourceDeviceSpan_$thisDevice'>".$thisDevice."</span></td>";
+	                                                if($x%2>0) {
+	                                                        echo "</tr><tr>";
+	                                                }
+							/*echo '<td width="10"><input type="checkbox" id="eventResourceDeviceCheckbox_'.$thisDevice.'" name="'.$thisDevice.'" /><br></td>'."\n";
+                                                        echo '<td width="50%"><span id="eventResourceDeviceSpan_'.$thisDevice.'">'.$thisDevice.'</span></td>'."\n";
+                                                        if($x%2>0) {
+                                                                echo "</tr><tr>"."\n";
+                                                        }*/
+	                                        }
+	                                        ?>
+						</tr>
+			                        </tbody>
+			                    </table>
+					</td>
+					<td width="5%"><br></td>
+				</tr>
+			</tbody>
+			</table>
+
+			<table width="100%">
+                        <tbody>
+                                <tr>
+                                    <td width="100">
+                                        <label><br>Resources (people): </label>
+                                    </td>
+                                </tr>
+                        </tbody>
+                        </table>
+
+			<table width="100%">
+                        <tbody>
+				<tr>
+                                        <td width="5%"><br></td>
+                                        <td width="90%">
+                                            <table width="100%"> 
+                                                <tbody>
+                                                <tr>
+                                                <?php
+                                                $userList = $_SESSION['userList'];
+                                                for($x=0; $x<count($userList); $x++) {
+                                                        $thisUser = $userList[$x];
+							echo "<td width='10'><input type='checkbox' id='eventResourcePersonCheckbox' name='$thisUser'></input><br></td>";
+                                                        echo "<td width='50%'>".$thisUser."</td>";
+                                                        if($x%2>0) {
+                                                                echo "</tr><tr>";
+                                                        }
+                                                }
+                                                ?>
+                                                </tr>
+                                                </tbody>
+                                            </table>
+                                        </td>
+                                        <td width="5%"><br></td>
+                                </tr>
+                        </tbody>
+                        </table>
+		</div>
+		<div class="modal-footer">
+                    <button type="button" id="createEvent_cancelButton" class="btn btn-default" data-dismiss="modal">Cancel</button>
+				&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+				&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+				&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+				&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+				&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+				&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+				&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                    <button onclick="createCalEvent();" type="button" id="createEvent_submitButton" class="btn btn-default">Create Event</button>
+                </div>
+	    </div>
+	</div>
+    </div>
+<!--	End createEventModal	-->
+
+<!--	Begin previewEventModal	-->
+    <div class="modal modal-primary" id="previewEventModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+	<!-- xxxxxxxxxxxx Start previewDiv xxxxxxxxxxxxxxxxxxxxxx -->
+	<div id="previewDiv">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                    <h4 class="modal-title" id="previewEventModal_title"></h4>
+                </div>
+                <div class="modal-body clearfix">
+			<table width="100%">
+				<tr>
+					<td width="50%"><strong>Start Date/Time: </strong><div id="eventStart"></div><br></td>
+					<td width="50%"><strong>End Date/Time: </strong><div id="eventEnd"></div><br></td>
+				</tr>
+				<tr>
+					<td colspan="2"><strong>Created By: </strong><div id="previewEventModal_createdBy"></div><br></td>
+				</tr>
+				<tr>
+					<td colspan="2"><strong>Description: </strong><div id="eventDescription"></div><br></td>
+				</tr>
+				<tr>
+					<td colspan="2"><strong>Reserved Resources: </strong><div id="resourceDeviceList"></div><br></td>
+				</tr>
+				<tr>
+					<td colspan="2"><strong>People Invited: </strong><div id="resourcePersonList"></div><br>
+					<input type="hidden" id="thisEventId" value="none" /></td>
+				</tr>
+				
+			</table>
+			<div id="previewEventModal_createdBy"></div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" id="previewEvent_cancelButton" class="btn btn-default" data-dismiss="modal">Close</button>
+                    <button onclick="editEvent()" type="button" id="previewEvent_editButton" class="btn btn-default">Edit Event</button>
+                </div>
+	</div>
+	<!-- xxxxxxxxxxxx End previewDiv xxxxxxxxxxxxxxxxxxxxxx -->
+
+	<!-- xxxxxxxxxxxxx Start editDiv xxxxxxxxxxxxxxxxxxxxx -->
+	<div id="editDiv">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                    <h4 class="modal-title" id="eventModal_title">Edit Event</h4>
+                </div>
+                <div class="modal-body clearfix">
+                        <table width="100%">
+                        <tbody>
+                                <tr>
+                                    <td width="100%" colspan="4">
+                                        <label>Title: </label> <input type="text" id="editEvent_title" name="editEvent_title"value="" /><br> </td>
+                                </tr>
+                                <tr>
+                                    <td width="35%">
+                                        <label>Start Date: </label> <input type="text" id="editEvent_startDatepicker" name="editEvent_startDatepicker" value="" />
+                                    </td>
+                                    <td width="15%"><br></td>
+                                    <td width="35%">
+                                        <label id="editEvent_startTimeLabel">Start Time: </label> <input type="text" id="editEvent_startTimepicker" name="editEvent_startTimepicker"
+ value="" />
+                                    </td>
+                                    <td width="15%"><br></td>
+                                </tr>
+                                <tr>
+                                    <td width="35%">
+                                        <label>End Date: </label> <input type="text" id="editEvent_endDatepicker" name="editEvent_endDatepicker" value="" /><br>
+                                    </td>
+                                    <td width="15%"><br></td>
+                                    <td width="35%">
+                                        <label id="editEvent_endTimeLabel">End Time: </label> <input type="text" id="editEvent_endTimepicker" name="editEvent_endTimePicker" value="
+" /><br>
+                                    </td>
+                                    <td width="15%"><br></td>
+                                </tr>
+                        </tbody>
+                        </table>
+
+                        <table width="100%">
+                        <tbody>
+                                <tr>
+                                    <td width="80">
+                                        <label>All Day: </label>
+                                    </td>
+                                    <td>
+                                        <input type="checkbox" id="editEvent_allDayCheckbox"/>
+                                    </td>
+                                </tr>
+                                <!--tr>
+                                    <td width="80">
+                                        <label>Repeat: </label> 
+                                    </td>
+                                    <td>
+                                        <input type="checkbox" id="repeat-checkbox"/>
+                                    </td>
+                                </tr-->
+                        </tbody>
+                        </table>
+
+                        <table width="100%">
+                        <tbody>
+                                <tr>
+                                    <td width="100">
+                                        <label><br>Description: </label>
+                                        <br><textarea id="editEvent_eventDescription"></textarea>
+                                    </td>
+                                </tr>
+                        </tbody>
+                        </table>
+
+                        <table width="100%">
+                        <tbody>
+                                <tr>
+                                    <td width="100">
+                                        <label><br>Resources (devices): </label>
+                                    </td>
+                                </tr>
+                        </tbody>
+                        </table>
+
+                        <table width="100%">
+                        <tbody>
+                                <tr>
+                                        <td width="5%"><br></td>
+                                        <td width="90%">
+                                            <table width="100%">
+                                                <tbody>
+                                                <tr>
+                                                <?php
+                                                $deviceList = $_SESSION['deviceList'];
+                                                for($x=0; $x<count($deviceList); $x++) {
+                                                        $thisDevice = $deviceList[$x];
+                                                        echo "<td width='10'><input type='checkbox' id='editEvent_eventResourceDeviceCheckbox' name='$thisDevice'></input><br></td>";
+                                                        echo "<td width='50%'><span id='editEvent_eventResourceDeviceSpan_$thisDevice'>".$thisDevice."</span></td>";
+                                                        if($x%2>0) {
+                                                                echo "</tr><tr>";
+                                                        }
+                                                }
+                                                ?>
+                                                </tr>
+                                                </tbody>
+                                            </table>
+                                        </td>
+                                        <td width="5%"><br></td>
+                                </tr>
+                        </tbody>
+                        </table>
+
+                        <table width="100%">
+                        <tbody>
+                                <tr>
+                                    <td width="100">
+                                        <label><br>Resources (people): </label>
+                                    </td>
+                                </tr>
+                        </tbody>
+                        </table>
+
+                        <table width="100%">
+                        <tbody>
+                                <tr>
+                                        <td width="5%"><br></td>
+                                        <td width="90%">
+                                            <table width="100%">
+                                                <tbody>
+                                                <tr>
+                                                <?php
+                                                $userList = $_SESSION['userList'];
+                                                for($x=0; $x<count($userList); $x++) {
+                                                        $thisUser = $userList[$x];
+                                                        echo "<td width='10'><input type='checkbox' id='editEvent_eventResourcePersonCheckbox' name='$thisUser'></input><br></td>";
+                                                        echo "<td width='50%'>".$thisUser."</td>";
+                                                        if($x%2>0) {
+                                                                echo "</tr><tr>";
+                                                        }
+                                                }
+                                                ?>
+                                                </tr>
+                                                </tbody>
+                                            </table>
+                                        </td>
+                                        <td width="5%"><br></td>
+                                </tr>
+                        </tbody>
+                        </table>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" id="editEvent_cancelButton" class="btn btn-default" data-dismiss="modal">Cancel</button>
+				&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+				&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+				&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+				&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+				&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                    <button onclick="deleteEvent();" type="button" id="editEvent_deleteButton" class="btn btn-default" data-dismiss="modal">Delete Event</button>
+                    <button onclick="updateEvent();" type="button" id="editEvent_submitButton" class="btn btn-default">Update Event</button>
+                </div>
+	</div>
+	<!-- xxxxxxxxxxxx End editDiv xxxxxxxxxxxxxxxxxxxxxx -->
+            </div>
+        </div>
+    </div>
+<!--	End previewEventModal	-->
+
+
+
+
+
+
+   
+<script type="text/javascript" src="/js/TEST_portal.js"></script>
+<script type="text/javascript">
+<?php
+        echo "var thisUserName = \"".$_SESSION['thisUserName']."\";\n";
+?> 
+function showHideEditEventButton () {
+	if($("#previewEventModal_createdBy").html() == thisUserName) { $("#previewEvent_editButton").show(); }
+	else { $("#previewEvent_editButton").hide(); }
+}
+function createCalendarEvent()
+{
+	if ($(".fc-today")[0]){
+		$(".fc-today").trigger('click');
+	} else {
+		alert('Please click on the calendar to create a new event.');
+	}
+}
+</script>
+
+</body>
+</html>
+

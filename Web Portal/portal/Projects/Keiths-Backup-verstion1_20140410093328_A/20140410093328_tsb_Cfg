@@ -1,0 +1,304 @@
+
+!
+! Last configuration change at 16:50:18 UTC Tue Mar 25 2014
+! NVRAM config last updated at 22:26:36 UTC Thu Nov 7 2013
+! NVRAM config last updated at 22:26:36 UTC Thu Nov 7 2013
+version 15.2
+service timestamps debug datetime msec
+service timestamps log datetime msec
+service password-encryption
+!
+hostname tsb
+!
+boot-start-marker
+boot-end-marker
+!
+!
+logging buffered 51200 warnings
+enable secret 5 $1$yMi2$R36euvDfiS26sGEcbuwl61
+!
+no aaa new-model
+!
+no ipv6 cef
+!
+!
+!
+!
+!
+no ip domain lookup
+ip domain name yourdomain.com
+ip host C4900MA 2003 1.0.2.1
+ip host C5548B 2007 1.0.2.1
+ip host LinkTropy 2008 1.0.2.1
+ip host MX80B 2010 1.0.2.1
+ip host CRSB-P 2011 1.0.2.1
+ip host CRSB-B 2012 1.0.2.1
+ip host C2951D 2016 1.0.2.1
+ip host C2951C 2017 1.0.2.1
+ip host srx550a 2018 1.0.2.1
+ip host srx550b 2013 1.0.2.1
+ip host C7606C 2014 1.0.2.1
+ip host C7600C-B 2004 1.0.2.1
+ip host c7606A-B 2003 1.0.2.1
+ip cef
+multilink bundle-name authenticated
+!
+!
+!
+crypto pki trustpoint TP-self-signed-2860993467
+ enrollment selfsigned
+ subject-name cn=IOS-Self-Signed-Certificate-2860993467
+ revocation-check none
+ rsakeypair TP-self-signed-2860993467
+!
+!
+crypto pki certificate chain TP-self-signed-2860993467
+ certificate self-signed 01
+  3082022B 30820194 A0030201 02020101 300D0609 2A864886 F70D0101 05050030 
+  31312F30 2D060355 04031326 494F532D 53656C66 2D536967 6E65642D 43657274 
+  69666963 6174652D 32383630 39393334 3637301E 170D3132 30373033 30333132 
+  34375A17 0D323030 31303130 30303030 305A3031 312F302D 06035504 03132649 
+  4F532D53 656C662D 5369676E 65642D43 65727469 66696361 74652D32 38363039 
+  39333436 3730819F 300D0609 2A864886 F70D0101 01050003 818D0030 81890281 
+  8100E707 9FED54FA 07987B1C 35EA8DC9 DA1043EE 3172681E 23CC0184 8383C547 
+  49F608DC 80B7958E 755BCB04 E099E521 787F95ED 8A2001CE 28E5CD63 CAA237D9 
+  7F5713A6 346BC7EA 74AAA0B7 7D79B800 A14AA1F0 6D8D2E6D EEFD2E2A 17BB322C 
+  45EE5D8C B58FC4D6 32236F4B 09893321 AF669D98 7FCF3A48 94A7783D E7A0B657 
+  ADC70203 010001A3 53305130 0F060355 1D130101 FF040530 030101FF 301F0603 
+  551D2304 18301680 14EF6489 3107143B EAC00849 9D37D1A6 4AF430E9 2D301D06 
+  03551D0E 04160414 EF648931 07143BEA C008499D 37D1A64A F430E92D 300D0609 
+  2A864886 F70D0101 05050003 8181008D F730C5A2 B4B3E0C7 1DC6BCDE 4693ABA5 
+  D4EFA6D8 6AC49F1C 3F74DA80 4AE4F97A 5C6EF70B 49304C06 A88029E2 9B484B65 
+  AFABD9EF C9D75419 0BE4FCF5 0A1118B2 05BD852C 2AE9BF28 DEBCDD3F B63C0D21 
+  B1E57286 6DEB4F17 1A6ACF19 FC6B2434 BDFAFD1C A534BF20 56EDFAF6 6DC5131E 
+  1FDEF586 68B6F7A8 76A3FA87 712C9C
+  	quit
+license udi pid CISCO2901/K9 sn FTX1627817C
+!
+!
+username grant privilege 15 secret 5 $1$WL9a$OfjO5yXKoUwFtghfO/Gg9/
+username cisco privilege 15 secret 5 $1$uEUS$ZWVmpFo5/Efm.sJi6iGHr1
+!
+!
+!
+!
+!
+!
+interface Loopback0
+ ip address 1.0.2.1 255.255.255.0
+ ip ospf network point-to-point
+ ip ospf 100 area 0
+!
+interface Loopback1
+ ip address 1.0.4.1 255.255.255.0
+!
+interface Embedded-Service-Engine0/0
+ no ip address
+ shutdown
+!
+interface GigabitEthernet0/0
+ description Outside Corp Nework Interface
+ ip address 10.65.127.101 255.255.255.0
+ ip nat outside
+ ip virtual-reassembly in
+ load-interval 30
+ duplex auto
+ speed auto
+!
+interface GigabitEthernet0/1
+ description Inside Interface c3750d g1/0/1
+ ip address 192.168.1.6 255.255.255.0
+ ip nat inside
+ ip virtual-reassembly in
+ ip ospf 100 area 0
+ load-interval 30
+ duplex auto
+ speed auto
+!
+interface Async0/0/0
+ no ip address
+ encapsulation slip
+!
+interface Async0/0/1
+ no ip address
+ encapsulation slip
+!
+interface Async0/0/2
+ no ip address
+ encapsulation slip
+!
+interface Async0/0/3
+ no ip address
+ encapsulation slip
+!
+interface Async0/0/4
+ no ip address
+ encapsulation slip
+!
+interface Async0/0/5
+ no ip address
+ encapsulation slip
+!
+interface Async0/0/6
+ no ip address
+ encapsulation slip
+!
+interface Async0/0/7
+ no ip address
+ encapsulation slip
+!
+interface Async0/0/8
+ no ip address
+ encapsulation slip
+!
+interface Async0/0/9
+ no ip address
+ encapsulation slip
+!
+interface Async0/0/10
+ no ip address
+ encapsulation slip
+!
+interface Async0/0/11
+ no ip address
+ encapsulation slip
+!
+interface Async0/0/12
+ no ip address
+ encapsulation slip
+!
+interface Async0/0/13
+ no ip address
+ encapsulation slip
+!
+interface Async0/0/14
+ no ip address
+ encapsulation slip
+!
+interface Async0/0/15
+ no ip address
+ encapsulation slip
+!
+router ospf 100
+!
+ip forward-protocol nd
+!
+ip http server
+ip http access-class 23
+ip http authentication local
+ip http secure-server
+ip http timeout-policy idle 60 life 86400 requests 10000
+!
+ip nat inside source static 192.168.1.10 10.65.127.10
+ip nat inside source static 192.168.1.100 10.65.127.50
+ip nat inside source static 192.168.1.101 10.65.127.51
+ip nat inside source static 192.168.1.102 10.65.127.52
+ip nat inside source static 192.168.1.98 10.65.127.98
+ip nat inside source static 192.168.1.99 10.65.127.99
+ip nat inside source static 192.168.1.103 10.65.127.103
+ip nat inside source static 192.168.1.104 10.65.127.104
+ip nat inside source static 192.168.1.105 10.65.127.105
+ip nat inside source static 192.168.1.106 10.65.127.106
+ip nat inside source static 192.168.1.108 10.65.127.108
+ip nat inside source static 192.168.1.109 10.65.127.109
+ip nat inside source static 192.168.1.110 10.65.127.110
+ip nat inside source static 192.168.1.111 10.65.127.111
+ip nat inside source static 192.168.1.112 10.65.127.112
+ip nat inside source static 192.168.1.113 10.65.127.113
+ip nat inside source static 192.168.1.201 10.65.127.201
+ip nat inside source static 192.168.1.203 10.65.127.203
+ip nat inside source static 192.168.1.204 10.65.127.204
+ip nat inside source static 192.168.1.207 10.65.127.207
+ip nat inside source static 192.168.1.208 10.65.127.208
+ip nat inside source static 192.168.1.209 10.65.127.209
+ip nat inside source static 192.168.1.210 10.65.127.210
+ip nat inside source static 192.168.1.219 10.65.127.219
+ip nat inside source static 192.168.1.220 10.65.127.220
+ip nat inside source static 192.168.1.221 10.65.127.221
+ip nat inside source static 192.168.1.222 10.65.127.222
+ip nat inside source static 192.168.1.226 10.65.127.225
+ip nat inside source static 192.168.1.237 10.65.127.237
+ip route 0.0.0.0 0.0.0.0 10.65.127.1
+!
+logging facility local0
+logging 192.168.1.250
+!
+!
+!
+control-plane
+!
+!
+alias exec auxup telnet 1.0.2.1 2001
+alias exec auxdown clear line 1
+banner exec 
+
+ip host C4900MA 2003 1.0.2.1
+ip host C7600B-P 2004 1.0.2.1
+ip host C5548B 2007 1.0.2.1
+ip host LinkTropy 2008 1.0.2.1
+ip host MX80B 2010 1.0.2.1
+ip host CRSB-P 2011 1.0.2.1
+ip host CRSB-B 2012 1.0.2.1
+ip host C2951D 2016 1.0.2.1
+ip host C2951C 2017 1.0.2.1
+ip host srx550a 2018 1.0.2.1
+ip host srx550b 2013 1.0.2.1
+ip host C7606C 2014 1.0.2.1
+
+
+!
+line con 0
+ password 7 0822455D0A16
+ login
+line aux 0
+ modem InOut
+ transport preferred telnet
+ transport input telnet
+ transport output telnet
+line 2
+ no activation-character
+ no exec
+ transport preferred none
+ transport input all
+ transport output pad telnet rlogin lapb-ta mop udptn v120 ssh
+ stopbits 1
+line 0/0/0 0/0/7
+ session-timeout 300 
+ exec-timeout 300 0
+ no vacant-message
+ no exec
+ transport input telnet
+ transport output telnet
+ stopbits 1
+ flowcontrol hardware
+line 0/0/8 0/0/9
+ session-timeout 300 
+ exec-timeout 300 0
+ no vacant-message
+ no exec
+ transport input telnet
+ transport output telnet
+line 0/0/10 0/0/15
+ session-timeout 300 
+ exec-timeout 300 0
+ no vacant-message
+ no exec
+ transport input telnet
+ transport output telnet
+ stopbits 1
+ flowcontrol hardware
+line vty 0 4
+ privilege level 15
+ password 7 094F471A1A0A
+ no login
+ transport input telnet ssh
+line vty 5 15
+ privilege level 15
+ password 7 070C285F4D06
+ no login
+ transport input telnet ssh
+!
+scheduler allocate 20000 1000
+ntp server 192.168.1.250
+!
+end

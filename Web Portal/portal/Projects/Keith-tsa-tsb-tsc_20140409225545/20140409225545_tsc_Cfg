@@ -1,0 +1,306 @@
+
+!
+! Last configuration change at 16:50:34 UTC Tue Mar 25 2014
+! NVRAM config last updated at 18:54:22 UTC Tue Oct 1 2013
+! NVRAM config last updated at 18:54:22 UTC Tue Oct 1 2013
+version 15.2
+service timestamps debug datetime msec
+service timestamps log datetime msec
+no service password-encryption
+!
+hostname tsc
+!
+boot-start-marker
+boot-end-marker
+!
+!
+logging buffered 51200 warnings
+enable secret 5 $1$cBLG$9/NuS8gOcD2/OfV8zOrCC/
+!
+no aaa new-model
+!
+no ipv6 cef
+!
+!
+!
+!
+!
+no ip domain lookup
+ip domain name yourdomain.com
+ip host C4948EA 2003 1.0.3.1
+ip host C4948EB 2004 1.0.3.1
+ip host MX240A 2005 1.0.3.1
+ip host ASR9006 2007 1.0.3.1
+ip host MX240A-B 2008 1.0.3.1
+ip host ASR9001A 2012 1.0.3.1
+ip host ASR9001B 2013 1.0.3.1
+ip host C2951E 2009 1.0.3.1
+ip host C2951F 2010 1.0.3.1
+ip cef
+multilink bundle-name authenticated
+!
+!
+!
+crypto pki trustpoint TP-self-signed-2758547406
+ enrollment selfsigned
+ subject-name cn=IOS-Self-Signed-Certificate-2758547406
+ revocation-check none
+ rsakeypair TP-self-signed-2758547406
+!
+!
+crypto pki certificate chain TP-self-signed-2758547406
+ certificate self-signed 01
+  3082022B 30820194 A0030201 02020101 300D0609 2A864886 F70D0101 05050030 
+  31312F30 2D060355 04031326 494F532D 53656C66 2D536967 6E65642D 43657274 
+  69666963 6174652D 32373538 35343734 3036301E 170D3132 30373133 31343031 
+  34355A17 0D323030 31303130 30303030 305A3031 312F302D 06035504 03132649 
+  4F532D53 656C662D 5369676E 65642D43 65727469 66696361 74652D32 37353835 
+  34373430 3630819F 300D0609 2A864886 F70D0101 01050003 818D0030 81890281 
+  8100AF77 51D0E56F F2C93AF5 3D60F760 F6A22475 FB3DCA1E B5B31AAC 92CD31BB 
+  D7CD84FC 0D0C7CB2 947C1547 10366308 31F0F6F3 43872D9D 7ED00F8D 3EE8B41C 
+  FC44DC4E FDB1D190 D19ADBAF 48EAE884 4CE4BEAF A9D7AC26 C76A6774 73515371 
+  27B54C5E 4AC49D98 E8A7D04D 0692BD97 72377204 F8586A75 6CF35186 414C565A 
+  7BD90203 010001A3 53305130 0F060355 1D130101 FF040530 030101FF 301F0603 
+  551D2304 18301680 14CA2FFF 6D921CFA 19928346 443F03E6 65CB36BB C4301D06 
+  03551D0E 04160414 CA2FFF6D 921CFA19 92834644 3F03E665 CB36BBC4 300D0609 
+  2A864886 F70D0101 05050003 818100A2 0CE70204 77DED09D D7B045E5 70C7CAA8 
+  151F6398 67FEECF6 EF75C853 660FB01B 2483A007 9A20ABBF 15D3C3A3 8BEB0610 
+  5AF9F43F 64DE65AB AAA6B4E0 DC5D0698 C626F561 01B842D7 07500EE9 501CFA22 
+  99E1AAB2 2AD4D358 5F5EB5B2 604D015F 0001DF0B 83C869FE 834EEB44 973A45CF 
+  724559ED 6C6A661E A4CD85A4 7FDFB4
+  	quit
+license udi pid CISCO2901/K9 sn FTX1628842A
+!
+!
+username cisco privilege 15 secret 5 $1$QzIO$KHPxy4uYBgbBItqihPb9k0
+!
+!
+!
+!
+!
+!
+interface Loopback0
+ ip address 1.0.3.1 255.255.255.0
+ ip nat inside
+ ip virtual-reassembly in
+ ip ospf network point-to-point
+ ip ospf 100 area 0
+!
+interface Embedded-Service-Engine0/0
+ no ip address
+ shutdown
+!
+interface GigabitEthernet0/0
+ description $ETH-LAN$$ETH-SW-LAUNCH$$INTF-INFO-GE 0/0$
+ ip address 192.168.1.7 255.255.255.0
+ ip nat outside
+ ip virtual-reassembly in
+ ip ospf 100 area 0
+ duplex auto
+ speed auto
+!
+interface GigabitEthernet0/1
+ ip address 10.65.127.7 255.255.255.0
+ duplex auto
+ speed auto
+!
+interface Async0/0/0
+ no ip address
+ encapsulation slip
+!
+interface Async0/0/1
+ no ip address
+ encapsulation slip
+!
+interface Async0/0/2
+ no ip address
+ encapsulation slip
+!
+interface Async0/0/3
+ no ip address
+ encapsulation slip
+!
+interface Async0/0/4
+ no ip address
+ encapsulation slip
+!
+interface Async0/0/5
+ no ip address
+ encapsulation slip
+!
+interface Async0/0/6
+ no ip address
+ encapsulation slip
+!
+interface Async0/0/7
+ no ip address
+ encapsulation slip
+!
+interface Async0/0/8
+ no ip address
+ encapsulation slip
+!
+interface Async0/0/9
+ no ip address
+ encapsulation slip
+!
+interface Async0/0/10
+ no ip address
+ encapsulation slip
+!
+interface Async0/0/11
+ no ip address
+ encapsulation slip
+!
+interface Async0/0/12
+ no ip address
+ encapsulation slip
+!
+interface Async0/0/13
+ no ip address
+ encapsulation slip
+!
+interface Async0/0/14
+ no ip address
+ encapsulation slip
+!
+interface Async0/0/15
+ no ip address
+ encapsulation slip
+!
+router ospf 100
+!
+ip forward-protocol nd
+!
+ip http server
+ip http access-class 23
+ip http authentication local
+ip http secure-server
+ip http timeout-policy idle 60 life 86400 requests 10000
+!
+ip nat inside source static tcp 1.0.3.1 2003 1.0.3.11 23 extendable
+ip nat inside source static tcp 1.0.3.1 2004 1.0.3.12 23 extendable
+ip nat inside source static tcp 1.0.3.1 2005 1.0.3.13 23 extendable
+ip nat inside source static tcp 1.0.3.1 2006 1.0.3.14 23 extendable
+ip nat inside source static tcp 1.0.3.1 2007 1.0.3.15 23 extendable
+ip nat inside source static tcp 1.0.3.1 2008 1.0.3.16 23 extendable
+ip nat inside source static tcp 1.0.3.1 2009 1.0.3.17 23 extendable
+ip nat inside source static tcp 1.0.3.1 2010 1.0.3.18 23 extendable
+ip nat inside source static tcp 1.0.3.1 2011 1.0.3.19 23 extendable
+ip nat inside source static tcp 1.0.3.1 2012 1.0.3.20 23 extendable
+ip nat inside source static tcp 1.0.3.1 2013 1.0.3.21 23 extendable
+ip nat inside source static tcp 1.0.3.1 2014 1.0.3.22 23 extendable
+ip nat inside source static tcp 1.0.3.1 2015 1.0.3.23 23 extendable
+ip nat inside source static tcp 1.0.3.1 2016 1.0.3.24 23 extendable
+ip nat inside source static tcp 1.0.3.1 2017 1.0.3.25 23 extendable
+ip nat inside source static tcp 1.0.3.1 2018 1.0.3.26 23 extendable
+ip route 10.0.0.0 255.0.0.0 10.65.127.1
+!
+logging facility local0
+logging 192.168.1.250
+access-list 23 permit 10.10.10.0 0.0.0.7
+!
+!
+!
+control-plane
+!
+!
+banner motd c
+
+
+ip host C4948EA 2003 1.0.3.1
+ip host C4948EB 2004 1.0.3.1
+ip host MX240A 2005 1.0.3.1
+ip host ASR9006 2007 1.0.3.1
+ip host MX240A-B 2008 1.0.3.1
+ip host ASR9001A 2012 1.0.3.1
+ip host ASR9001B 2013 1.0.3.1
+ip host C2951E 2009 1.0.3.1
+ip host C2951F 2010 1.0.3.1
+
+
+!
+line con 0
+ login local
+line aux 0
+ modem InOut
+ transport preferred telnet
+ transport input all
+ transport output all
+ stopbits 1
+ speed 115200
+line 2
+ no activation-character
+ no exec
+ transport preferred none
+ transport input all
+ transport output pad telnet rlogin lapb-ta mop udptn v120 ssh
+ stopbits 1
+line 0/0/0 0/0/3
+ session-timeout 5 
+ exec-timeout 300 0
+ no vacant-message
+ modem InOut
+ no exec
+ transport input telnet
+ transport output telnet
+ stopbits 1
+line 0/0/4
+ session-timeout 5 
+ exec-timeout 300 0
+ no vacant-message
+ modem InOut
+ no exec
+ transport input telnet
+ transport output telnet
+line 0/0/5 0/0/9
+ session-timeout 5 
+ exec-timeout 300 0
+ no vacant-message
+ modem InOut
+ no exec
+ transport input telnet
+ transport output telnet
+ stopbits 1
+line 0/0/10
+ session-timeout 5 
+ exec-timeout 300 0
+ no vacant-message
+ modem InOut
+ no exec
+ transport input telnet
+ transport output telnet
+ stopbits 1
+ speed 115200
+line 0/0/11 0/0/14
+ session-timeout 5 
+ exec-timeout 300 0
+ no vacant-message
+ modem InOut
+ no exec
+ transport input telnet
+ transport output telnet
+ stopbits 1
+line 0/0/15
+ session-timeout 300 
+ exec-timeout 300 0
+ no vacant-message
+ no exec
+ transport input telnet
+ transport output telnet
+ stopbits 1
+line vty 0 4
+ privilege level 15
+ password cisco
+ login
+ transport input telnet ssh
+line vty 5 15
+ privilege level 15
+ password cisco
+ login
+ transport input telnet ssh
+!
+scheduler allocate 20000 1000
+ntp server 192.168.1.250
+!
+end

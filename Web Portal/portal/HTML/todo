@@ -1,0 +1,4 @@
+- need to write js and php code to update an event.
+- need to detect current user and allow edit,delete functionality for that persons events, not other ones. Right now everyone has full access to everything.
+- need to detect event overlap at the date and time level, currently it is only at the all-day and day-intersect levels
+- show created by on events.

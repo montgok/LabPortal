@@ -1,0 +1,319 @@
+
+!
+! Last configuration change at 16:48:18 UTC Tue Mar 25 2014
+! NVRAM config last updated at 15:37:47 UTC Tue Sep 24 2013 by duane.grant
+!
+version 15.0
+service timestamps debug datetime msec
+service timestamps log datetime msec
+no service password-encryption
+!
+hostname tsa
+!
+boot-start-marker
+boot-end-marker
+!
+logging buffered 51200 warnings
+enable secret 5 $1$c5ke$2QG2adCYbfn0Vj8NijSkv.
+!
+aaa new-model
+!
+!
+aaa authentication login default enable
+aaa authentication login telnet enable
+aaa authentication login console enable
+aaa authentication enable default enable
+aaa authorization exec default if-authenticated 
+aaa accounting update newinfo
+aaa accounting exec default
+ action-type start-stop
+ group tacacs+
+!
+aaa accounting commands 0 default
+ action-type start-stop
+ group tacacs+
+!
+aaa accounting commands 2 default
+ action-type start-stop
+ group tacacs+
+!
+aaa accounting commands 3 default
+ action-type start-stop
+ group tacacs+
+!
+aaa accounting commands 4 default
+ action-type start-stop
+ group tacacs+
+!
+aaa accounting commands 15 default
+ action-type start-stop
+ group tacacs+
+!
+aaa accounting network default
+ action-type start-stop
+ group tacacs+
+!
+!
+!
+!
+!
+!
+aaa session-id common
+!
+no ipv6 cef
+ip source-route
+ip cef
+!
+!
+!
+!
+no ip domain lookup
+ip domain name yourdomain.com
+ip host C4924A 2003 1.0.0.0
+ip host ASR1001A 2004 1.0.0.0
+ip host ASR1002B 2005 1.0.0.0
+ip host Cisco7206A 2006 1.0.0.0
+ip host Cisco7206B 2007 1.0.0.0
+ip host Cisco6503A 2008 1.0.0.0
+ip host C7600A-P 2009 1.0.0.0
+ip host C7600A-B 2010 1.0.0.0
+ip host C5548A 2011 1.0.0.0
+ip host C7201A 2012 1.0.0.0
+ip host MX80A 2013 1.0.0.0
+ip host CRSA-P 2014 1.0.0.0
+ip host CRSA-B 2015 1.0.0.0
+ip host CRSA-DRP 2016 1.0.0.0
+ip host C4924B 2017 1.0.0.0
+ip host C2951A 2018 1.0.0.0
+ip host C2951B 2019 1.0.0.0
+multilink bundle-name authenticated
+!
+!
+!
+crypto pki trustpoint TP-self-signed-762873179
+ enrollment selfsigned
+ subject-name cn=IOS-Self-Signed-Certificate-762873179
+ revocation-check none
+ rsakeypair TP-self-signed-762873179
+!
+!
+crypto pki certificate chain TP-self-signed-762873179
+ certificate self-signed 01
+  30820248 308201B1 A0030201 02020101 300D0609 2A864886 F70D0101 04050030 
+  30312E30 2C060355 04031325 494F532D 53656C66 2D536967 6E65642D 43657274 
+  69666963 6174652D 37363238 37333137 39301E17 0D313231 30323932 31313132 
+  345A170D 32303031 30313030 30303030 5A303031 2E302C06 03550403 1325494F 
+  532D5365 6C662D53 69676E65 642D4365 72746966 69636174 652D3736 32383733 
+  31373930 819F300D 06092A86 4886F70D 01010105 0003818D 00308189 02818100 
+  BBE2F34F 79B3FC50 B831FB78 B4BDA750 33208EF3 353647EA 41516312 F42C3814 
+  35A06263 89D799B5 69711BFE DD95BA4D 56C041F6 F12C3163 2422BEFC 3C42B8FF 
+  27D77360 DA3D6DAF 672F53BE 0B633A8E 4632C48B 811538DE 8D0CD300 86F927A7 
+  1A271EAE F3CFAEF9 7FC2A48B 5D8D80F9 90784130 B2F7E1B5 E5E7CBBD 60B06635 
+  02030100 01A37230 70300F06 03551D13 0101FF04 05300301 01FF301D 0603551D 
+  11041630 14821274 73612E79 6F757264 6F6D6169 6E2E636F 6D301F06 03551D23 
+  04183016 8014864B E95E77FC B7478CCE A666F98C 584B759F 5896301D 0603551D 
+  0E041604 14864BE9 5E77FCB7 478CCEA6 66F98C58 4B759F58 96300D06 092A8648 
+  86F70D01 01040500 03818100 AD0F95B9 B581797A AAA7A12F 5C52928A 450FF497 
+  C6F023BE FAEAB6F5 F8FC7060 DA344210 2782C63F 20C865EB AFC04622 FBFDC8BF 
+  D9C9B8FC F2B48AEA 9B404F57 BA93F232 4F9A08D9 A00F0C96 19B7DA69 298FF3BC 
+  EDAB5FBE 9BA5A674 29B7E728 D9A31D1B 9289BC41 B45228E5 2BB3ABD1 355A3E6D 
+  4EC8874B A65AFDC2 12DCA86F
+  	quit
+license udi pid CISCO2901/K9 sn FTX1545808L
+!
+!
+username admin privilege 15 secret 5 $1$Y1PD$6N4yQu7BjfZx9qmP9Upi31
+username grant privilege 15 secret 5 $1$K5Ue$zC0zL8GBwgmGa5fjdga6Y1
+username root privilege 15 secret 5 $1$sYwU$KlfcpZN61L4w8uIZArkhR1
+username cisco privilege 15 secret 5 $1$K/Z5$vu8zsvzKQAFL47BNtrwrt1
+username beasley privilege 15 secret 5 $1$6U3B$y8NBPsuaHvYD9W8dUw1yD/
+username gallagher privilege 15 secret 5 $1$dOOu$caf6akRcfX3lOIyOGkBLE1
+username khurram.hashmi privilege 15 secret 5 $1$plux$KOxwh075POlrHO60GIjHf0
+username core privilege 15 secret 5 $1$3agT$ejoUS97Ml13oUwVAcK25s.
+!
+!
+!
+!
+!
+!
+interface Loopback0
+ ip address 1.0.0.0 255.255.255.255
+!
+interface GigabitEthernet0/0
+ description TR network
+ ip address 10.65.127.102 255.255.255.0
+ ip nat outside
+ ip virtual-reassembly
+ duplex auto
+ speed auto
+!
+interface GigabitEthernet0/1
+ ip address 192.168.1.3 255.255.255.0
+ ip nat inside
+ ip virtual-reassembly
+ duplex auto
+ speed auto
+!
+interface Async0/0/0
+ description C4924A 
+ no ip address
+ encapsulation slip
+!
+interface Async0/0/1
+ no ip address
+ encapsulation slip
+!
+interface Async0/0/2
+ no ip address
+ encapsulation slip
+!
+interface Async0/0/3
+ no ip address
+ encapsulation slip
+!
+interface Async0/0/4
+ no ip address
+ encapsulation slip
+!
+interface Async0/0/5
+ no ip address
+ encapsulation slip
+!
+interface Async0/0/6
+ no ip address
+ encapsulation slip
+!
+interface Async0/0/7
+ no ip address
+ encapsulation slip
+!
+interface Async0/0/8
+ no ip address
+ encapsulation slip
+!
+interface Async0/0/9
+ no ip address
+ encapsulation slip
+!
+interface Async0/0/10
+ no ip address
+ encapsulation slip
+!
+interface Async0/0/11
+ no ip address
+ encapsulation slip
+!
+interface Async0/0/12
+ no ip address
+ encapsulation slip
+!
+interface Async0/0/13
+ no ip address
+ encapsulation slip
+!
+interface Async0/0/14
+ no ip address
+ encapsulation slip
+!
+interface Async0/0/15
+ no ip address
+ encapsulation slip
+!
+router bgp 65234
+ no synchronization
+ bgp log-neighbor-changes
+ neighbor 10.88.36.63 remote-as 65123
+ neighbor 10.88.36.63 ttl-security hops 10
+ no auto-summary
+!
+ip forward-protocol nd
+!
+no ip http server
+ip http access-class 23
+ip http authentication local
+ip http secure-server
+ip http timeout-policy idle 60 life 86400 requests 10000
+!
+ip nat inside source list 10 interface GigabitEthernet0/0 overload
+ip route 0.0.0.0 0.0.0.0 10.65.127.1
+!
+logging facility local0
+logging 192.168.1.250
+access-list 10 permit any
+!
+!
+tacacs-server host 192.168.1.250
+tacacs-server directed-request
+tacacs-server key NetSolDev
+!
+control-plane
+!
+banner exec C
+
+
+              NetDev Primary Terminal Server
+             Only NetDev Team Access Permitted
+
+                        
+ip host C4924A 2003 1.0.0.0
+ip host ASR1001A 2004 1.0.0.0
+ip host ASR1002B 2005 1.0.0.0
+ip host Cisco7206A 2006 1.0.0.0
+ip host Cisco7206B 2007 1.0.0.0
+ip host Cisco6503A 2008 1.0.0.0
+ip host C7600A-P 2009 1.0.0.0
+ip host C7600A-B 2010 1.0.0.0
+ip host C5548A 2011 1.0.0.0
+ip host C7201A 2012 1.0.0.0
+ip host MX80A 2013 1.0.0.0
+ip host CRSA-P 2014 1.0.0.0
+ip host CRSA-B 2015 1.0.0.0
+ip host CRSA-DRP 2016 1.0.0.0
+ip host C4924B 2017 1.0.0.0
+ip host C2951A 2018 1.0.0.0
+ip host C2951B 2019 1.0.0.0
+
+
+!
+line con 0
+line aux 0
+line 0/0/0 0/0/8
+ exec-timeout 0 0
+ no exec
+ transport input telnet
+ transport output none
+ stopbits 1
+line 0/0/9 0/0/13
+ exec-timeout 0 0
+ no exec
+ transport input telnet
+ transport output none
+ stopbits 1
+ flowcontrol hardware
+line 0/0/14
+ exec-timeout 0 0
+ no exec
+ transport input telnet
+ transport output none
+ stopbits 1
+ speed 115200
+ flowcontrol hardware
+line 0/0/15
+ exec-timeout 0 0
+ no exec
+ transport input telnet
+ transport output none
+ stopbits 1
+ flowcontrol hardware
+line vty 0 4
+ privilege level 15
+ password cisco
+ transport input telnet ssh
+line vty 5 15
+ privilege level 15
+ password cisco
+ transport input telnet ssh
+!
+scheduler allocate 20000 1000
+ntp server 192.168.1.250
+end
