@@ -1,0 +1,99 @@
+<!-- <!DOCTYPE html>
+<html lang="en">
+<head>        
+    
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <link rel="icon" type="image/ico" href="TRlogo.icns"/>
+    
+    <link href="css/stylesheets.css" rel="stylesheet" type="text/css" />        
+    
+    <script type='text/javascript' src='js/plugins/jquery/jquery.min.js'></script>
+    <script type='text/javascript' src='js/plugins/jquery/jquery-ui.min.js'></script>   
+    <script type='text/javascript' src='js/plugins/jquery/jquery-migrate.min.js'></script>
+    <script type='text/javascript' src='js/plugins/jquery/globalize.js'></script>    
+    <script type='text/javascript' src='js/plugins/bootstrap/bootstrap.min.js'></script>
+    
+    <script type='text/javascript' src='js/plugins/uniform/jquery.uniform.min.js'></script>
+    <script type='text/javascript' src='js/plugins/datatables/jquery.dataTables.min.js'></script>
+    
+    <script type='text/javascript' src='js/plugins.js'></script>    
+    <script type='text/javascript' src='js/actions.js'></script>
+    <script type='text/javascript' src='js/settings.js'></script>
+</head>
+<body class="bg-img-num8"> -->
+<section>
+  <div class="container bg-white">        
+    <div class="row">
+      <br>
+      <div class="col-md-12">
+        <div class="block">
+          <div class="content bg-white text-danger">
+            <table id="ping_summary_table" cellpadding="0" cellspacing="0" width="100%" class="table table-bordered table-striped text-danger13">
+              <thead>
+                <tr class=tblFont>
+                  <th width="33%">Total Devices</th>
+                  <th width="33%">Devices Up</th>
+                  <th width="34%">Devices Down</th>
+                </tr>
+              </thead>
+              <tbody>
+                  <tr>
+                   <!--    <td><?php echo $totalDevices; ?></td>
+                      <td><?php echo $devicesUp; ?></td>
+                      <td><?php echo $devicesDown; ?></td> -->
+                      <td>totalDevices</td>
+                      <td>devicesUp</td>
+                      <td>devicesDown</td>
+                  </tr>
+              </tbody>
+            </table>                                        
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="container bg-white">        
+	 <div class="row">
+      <div class="col-md-12">
+        <div class="block">
+          <div class="content bg-white text-danger">
+            <table id="ping_info_table" cellpadding="0" cellspacing="0" width="100%" class="table table-bordered table-striped sortable text-danger13">
+              <thead>
+                <tr>
+                    <th width="25%">Last Ping Time</th>
+                    <th width="25%">Device IP</th>
+                    <th width="25%">Device Name</th>
+                    <th width="25%">Device Status</th>
+                </tr>
+              </thead>
+            <!--   <tbody>
+                  <?php
+                  for($x=0; $x<count($aResults); $x++)
+                  {
+                          echo "<tr>";
+                          echo "<td>".$aResults[$x][0]."</td>";
+                          echo "<td>".$aResults[$x][1]."</td>";
+                          echo "<td>".$aResults[$x][4]."</td>";
+                          echo "<td>".$aResults[$x][2]."</td>";
+                          echo "</tr>";
+                  }
+                  ?>
+              </tbody> -->
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script type="text/javascript" src="/js/portal.js"></script>
+  <script type="text/javascript">
+        // get db ping data ever 10 seconds and perform ajax screen refresh
+        setInterval(function () {
+                executePing(); 
+        },20000); 
+  </script>
+</section>
+<!-- </body>
+</html> -->
